@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+import model.Complex;
+
 public class SpectrumView extends javax.swing.JFrame {
 
 	Complex[][] results = null;

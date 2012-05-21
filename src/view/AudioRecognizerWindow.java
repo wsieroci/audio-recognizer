@@ -37,6 +37,10 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import model.Complex;
+import model.DataPoint;
+import model.FFT;
+
 import org.tritonus.sampled.convert.PCM2PCMConversionProvider;
 import org.tritonus.share.sampled.convert.*;
 
