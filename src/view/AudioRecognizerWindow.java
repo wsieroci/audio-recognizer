@@ -66,7 +66,6 @@ public class AudioRecognizerWindow extends JFrame {
                 new DataLine.Info(SourceDataLine.class, audioFormat);
         res = (SourceDataLine) AudioSystem.getLine(info);
         res.open(audioFormat);
-
         return res;
     }
 	
@@ -108,8 +107,7 @@ public class AudioRecognizerWindow extends JFrame {
 			formatTmp = getFormat(); //Fill AudioFormat with the wanted settings
 			DataLine.Info info = new DataLine.Info(TargetDataLine.class, formatTmp);
 			lineTmp = (TargetDataLine) AudioSystem.getLine(info);
-			isMicrophone = true;
-			
+			isMicrophone = true;		
 		} else {
 			File file = new File(filePath);
 			URL url = new URL(filePath);
@@ -125,15 +123,6 @@ public class AudioRecognizerWindow extends JFrame {
             AudioFormat baseFormat = in.getFormat();
             
             System.out.println(baseFormat.toString());
-
-            //AudioFormat decodedFormat = getFormat();
-            /*AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                    baseFormat.getSampleRate(),
-                    16,
-                    baseFormat.getChannels(),
-                    baseFormat.getChannels() * 2,
-                    baseFormat.getSampleRate(),
-                    false);*/
             
             AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                     baseFormat.getSampleRate(),
@@ -142,17 +131,13 @@ public class AudioRecognizerWindow extends JFrame {
                     baseFormat.getChannels() * 2,
                     baseFormat.getSampleRate(),
                     false);
-            
-            
+
             din = AudioSystem.getAudioInputStream(decodedFormat, in);
-            //outDin = AudioSystem.getAudioInputStream(decodedFormat, in);
             
             if(!conversionProvider.isConversionSupported(getFormat(), decodedFormat)) {
             	System.out.println("Conversion is not supported");
-            	//return;
             }
-            
-            
+
             System.out.println(decodedFormat.toString());
             
             outDin = conversionProvider.getAudioInputStream(getFormat(), din);
@@ -160,14 +145,8 @@ public class AudioRecognizerWindow extends JFrame {
             
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, formatTmp);
 			lineTmp = (TargetDataLine) AudioSystem.getLine(info);
-			
-            // play it...
-            //rawplay(getFormat(), outDin);
-            //in.close();
-            //return;
 		}
-		
-		
+
 		final AudioFormat format = formatTmp;
 		final TargetDataLine line = lineTmp; 
 		final boolean isMicro = isMicrophone;
@@ -181,12 +160,10 @@ public class AudioRecognizerWindow extends JFrame {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 		final long sId = songId;
 		final boolean isMatch = isMatching;
-		
-		
+
 		Thread listeningThread = new Thread( new Runnable(){
             public void run(){
             	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -197,7 +174,6 @@ public class AudioRecognizerWindow extends JFrame {
             	try {
             	    while (running) {
             	    	n++;
-            	    	
             	    	if(n > 1000)
             	    		break;
             	    	
@@ -218,7 +194,6 @@ public class AudioRecognizerWindow extends JFrame {
             	    } 
             	    
             	    try{
-            	    	  // Create file 
             	    	  makeSpectrum(out, sId, isMatch);
             	    	
             	    	  FileWriter fstream = new FileWriter("out.txt");
@@ -230,7 +205,7 @@ public class AudioRecognizerWindow extends JFrame {
                   	      } 
             	    	  outFile.close();
             	    	  
-            	    }catch (Exception e){//Catch exception if any
+            	    }catch (Exception e){
             	    		  System.err.println("Error: " + e.getMessage());
             	    }
             	    
@@ -248,7 +223,6 @@ public class AudioRecognizerWindow extends JFrame {
         });
 
 		listeningThread.start();
-		
 	}
 	
 	void makeSpectrum(ByteArrayOutputStream out, long songId, boolean isMatching) {
@@ -274,9 +248,6 @@ public class AudioRecognizerWindow extends JFrame {
 		determineKeyPoints(results, songId, isMatching);
 		JFrame spectrumView = new SpectrumView(results,4096,highscores,recordPoints);	
 	    spectrumView.setVisible(true);
-	    
-
-	    
 	}
 	
 	public final int UPPER_LIMIT = 300;
@@ -339,9 +310,7 @@ public class AudioRecognizerWindow extends JFrame {
 					points[t][index] = freq;
 				}
 			}
-			
-  
-    	   
+
     	    try {
     	    	  for (int k=0; k<5; k++) {
     	    		  outFile.write("" + highscores[t][k] + ";" + recordPoints[t][k] + "\t");
@@ -354,51 +323,31 @@ public class AudioRecognizerWindow extends JFrame {
 	    	
     	    long h = hash(points[t][0], points[t][1], points[t][2], points[t][3]);
     	    
-    	    
     	    if(isMatching) {
     	    	List<DataPoint> listPoints;
 
     	    	if((listPoints = hashMap.get(h)) != null) {
-    	    			
-    	    		System.out.println("got hash");
     	    		for(DataPoint dP : listPoints) {
         				int offset = Math.abs(dP.getTime() - t);
-        				
-        				System.out.println("Offset: " + offset);
         				Map<Integer, Integer> tmpMap = null;
-        				System.out.println("Writing ... 4");
         				if((tmpMap = this.matchMap.get(dP.getSongId())) == null) {
-//        					System.out.println("Writing ... 5");
         					tmpMap = new HashMap<Integer, Integer>();
         					tmpMap.put(offset, 1);
         				    matchMap.put(dP.getSongId(), tmpMap);
-//        					System.out.println("Writing ... 6");
         				} else {
-//        					System.out.println("Writing ... 7");
-//        					if(tmpMap == null) {
-//        						System.out.println("tmp null");
-//        					}
-        					//tmpMap.put(offset, 1);
         					Integer count = tmpMap.get(offset);
         					System.out.println("Count: " + count);
-        					
         					if(count == null) {
         						tmpMap.put(offset, new Integer(1));
         					} else {
         						System.out.println("Count+1: " + (count + 1));
         						tmpMap.put(offset, new Integer(count + 1));
         					}
-        					//count++;
-        					//tmpMap.put(offset, count);
-//        					System.out.println("Writing ... 8");
         				}
         			}
     	    	}
-    	    	
-    	    	
 			} else {
 				List<DataPoint> listPoints = null;
-				
 				if ((listPoints = hashMap.get(h)) == null) {
 					listPoints = new ArrayList<DataPoint>();
 					DataPoint point = new DataPoint((int) songId, t);
@@ -410,7 +359,6 @@ public class AudioRecognizerWindow extends JFrame {
 				}
 			}
 		}
-		
 		try {
 			outFile.close();
 		} catch (IOException e) {
@@ -422,28 +370,16 @@ public class AudioRecognizerWindow extends JFrame {
 		super(windowName);
 	}
 
-	//Using a little bit of error-correction, damping
 	private static final int FUZ_FACTOR = 2;
 
 	private long hash(long p1, long p2, long p3, long p4) {
-	    //String[] p = line.split("\t");
-	    //long p1 = Long.parseLong(p[0]);
-	    //long p2 = Long.parseLong(p[1]);
-	    //long p3 = Long.parseLong(p[2]);
-	    //long p4 = Long.parseLong(p[3]);
 	    return  (p4-(p4%FUZ_FACTOR)) * 100000000 + (p3-(p3%FUZ_FACTOR)) * 100000 + (p2-(p2%FUZ_FACTOR)) * 100 + (p1-(p1%FUZ_FACTOR));
 	}
 	
 	public void createWindow() {
 		
 		this.hashMap = new HashMap<Long, List<DataPoint>>();
-		//Create and set up the window. 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-	 
-	    //JLabel textLabel = new JLabel("Hi!",SwingConstants.CENTER); 
-	    //textLabel.setPreferredSize(new Dimension(300, 100)); 
-	    //frame.getContentPane().add(textLabel, BorderLayout.CENTER); 
-	    
 	    Button buttonStart = new Button("Start");
 	    Button buttonStop = new Button("Stop");
 	    Button buttonMatch = new Button("Match");
@@ -460,10 +396,8 @@ public class AudioRecognizerWindow extends JFrame {
 	            			try {
 								listenSound(nrSong,false);
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							} catch (UnsupportedAudioFileException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 	            			nrSong++;
@@ -489,13 +423,10 @@ public class AudioRecognizerWindow extends JFrame {
 	            			try {
 								listenSound(nrSong,true);
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							} catch (UnsupportedAudioFileException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-	            			//nrSong++;
 	            		} catch (LineUnavailableException ex) {
 	            			ex.printStackTrace();
 	            		}
@@ -514,18 +445,6 @@ public class AudioRecognizerWindow extends JFrame {
 	    buttonMatch.addActionListener(
 	            new ActionListener() {
 	                public void actionPerformed(ActionEvent e) {
-//	            	    for(Entry<Long, List<DataPoint>> entry : hashMap.entrySet()) {
-//	            			System.out.print(""+entry.getKey()+";");
-//	            			
-//	            			for(DataPoint dP : entry.getValue()) {
-//	            				System.out.print("time: " + dP.getTime() + " songId: " + dP.getSongId() + ",");
-//	            			}
-//	            			
-//	            			System.out.println();
-//	            		}
-	                	
-	                	System.out.println("Writing ...");
-	                	
 	                	List<DataPoint> listPoints;
 	                	int bestCount = 0; 
 	                	int bestSong = -1;
@@ -554,23 +473,14 @@ public class AudioRecognizerWindow extends JFrame {
 	            }
 	    );
 	    
-	    
 	    this.add(buttonStart);
 	    this.add(buttonStop);
 	    this.add(buttonStartMatch);
 	    this.add(buttonStopMatch);
 	    this.add(buttonMatch);
-	    
 	    this.add(fileTextField);
-	    
 	    this.setLayout(new FlowLayout());
 	    this.setSize(300, 100);
-	    //Display the window. 
-	    //frame.setLocationRelativeTo(null); 
-	    //frame.pack();
 	    this.setVisible(true); 
-	    
-	    
-	    
 	}
 }
