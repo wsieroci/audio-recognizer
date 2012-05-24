@@ -121,14 +121,13 @@ public class AudioRecognizerWindow extends JFrame {
 			lineTmp = (TargetDataLine) AudioSystem.getLine(info);
 			isMicrophone = true;
 		} else {
-			File file = new File(filePath);
-			URL url = new URL(filePath);
-
 			AudioInputStream in;
 
 			if (filePath.contains("http")) {
+				URL url = new URL(filePath);
 				in = AudioSystem.getAudioInputStream(url);
 			} else {
+				File file = new File(filePath);
 				in = AudioSystem.getAudioInputStream(file);
 			}
 
@@ -350,11 +349,9 @@ public class AudioRecognizerWindow extends JFrame {
 							matchMap.put(dP.getSongId(), tmpMap);
 						} else {
 							Integer count = tmpMap.get(offset);
-							System.out.println("Count: " + count);
 							if (count == null) {
 								tmpMap.put(offset, new Integer(1));
 							} else {
-								System.out.println("Count+1: " + (count + 1));
 								tmpMap.put(offset, new Integer(count + 1));
 							}
 						}

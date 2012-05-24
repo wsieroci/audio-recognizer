@@ -52,9 +52,9 @@ public class SpectrumView extends javax.swing.JFrame {
 				g2d.setColor(new Color(0, (int) magnitude * 10,
 						(int) magnitude * 20));
 
-				if (freq < 300 /* && recordPoints[i][freq] == 1 */) {
-					g2d.setColor(Color.RED);
-				}
+//				if (freq < 300 /* && recordPoints[i][freq] == 1 */) {
+//					g2d.setColor(Color.RED);
+//				}
 
 				// Fill:
 				g2d.fillRect(i * blockSizeX, (size - line) * blockSizeY,
