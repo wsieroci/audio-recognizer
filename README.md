@@ -1,3 +1,5 @@
+## Shazam in Java
+
 Roy van Rijn has written wonderful post about Shazam algorithm and how to implement it on our own. To do this he placed many chunks of his project source code, but he did not upload all source code of his application because as he stated:
 
 The Shazam patent holders lawyers are sending me emails to stop me from releasing the code and removing this blogpost.
